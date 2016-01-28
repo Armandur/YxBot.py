@@ -87,6 +87,7 @@ class YxBot:
 			ping = ping[1:]
 
 			self._pong(ping)
+
 		if message.find(":"+self.adminNick+"!") != -1:
 			if message.find(self.nick + ": quit") != -1:
 				self.disconnect()
