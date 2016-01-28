@@ -125,20 +125,26 @@ class YxBot:
 		registered = False
 		joined = False
 
+		buff = ""
+
 		while self.running:
-			ircmsg = self.sock.recv(2048)
-			ircmsg = ircmsg.strip("\n\r")
-			print ircmsg
+			for c in self.sock.recv(2048):
+				if c != "\n":
+					buff += c
+				else:
+					self._handleMessage(buff)
 
-			if not registered:
-				self._register()
-				registered = True
+					print buff
 
-			if not joined and ircmsg.find("MODE " + self.nick + " +") != -1:
-				self._joinChannel()
-				joined = True
+					if not registered:
+						self._register()
+						registered = True
 
-			self._handleMessage(ircmsg)
+					if not joined and buff.find("MODE " + self.nick + " +") != -1:
+						self._joinChannel()
+						joined = True
+
+					buff = ""
 
 		print "-- Loop stopped -- \n"
 
