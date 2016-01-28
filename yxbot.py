@@ -92,6 +92,12 @@ class YxBot:
 				self.disconnect()
 			if message.find(self.nick + ": reload") != -1:
 				self._load(self.paths)
+			if message.find(self.nick + ": fabrikat") != -1:
+				self._sendMessage(len(self.yxfabrikat))
+			if message.find(self.nick + ": yxtyper") != -1:
+				self._sendMessage(len(self.yxtyp))
+			if message.find(self.nick + ": kroppsdelar") != -1:
+				self._sendMessage(len(self.kroppsdel))
 
 		if message.find("Closing link") != -1 and message.find(self.nick) != -1:
 			self.disconnect();
