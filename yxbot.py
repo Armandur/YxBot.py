@@ -5,10 +5,6 @@ import socket, random, time
 
 
 class YxBot:
-	#yxfabrikat = ["Gränsfors Bruk", "Wetterlings", "Husqvarna", "Hjärtum", "Billnäs Bruk", "Jonsered", "Stihl", "John Neeman", "Hultafors", "Säter", "Collins", "Council Tool", "Estwing"]
-	#yxtyp = ["amerikansk ", "svensknackad ", "vikinga", "japansk ", "finsk ", "norsk ", "dubbeleggad ", "skarv", "knut","tjäckel", "skräd", "snickar", "klyv"]
-	#kroppsdel = ["huvudet", "benet", "bröstet", "högerarmen", "vänsterarmen", "högerbenet", "vänsterbenet", "skrevet", "axeln", "ryggen", "magen", "låret"]
-
 	yxfabrikat = []
 	yxtyp = []
 	kroppsdel = []
