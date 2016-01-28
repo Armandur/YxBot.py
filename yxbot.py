@@ -85,8 +85,8 @@ class YxBot:
 			self._pong(ping)
 
 		if message.find(":"+self.adminNick+"!") != -1:
-			if message.find(self.nick + ": quit") != -1:
-				self.disconnect()
+			#if message.find(self.nick + ": quit") != -1:
+			#	self.disconnect()
 			if message.find(self.nick + ": reload") != -1:
 				self._load(self.paths)
 			if message.find(self.nick + ": count") != -1:
@@ -97,7 +97,6 @@ class YxBot:
 			self.disconnect();
 
 		if message.find("PRIVMSG") != -1 and message.find(" :!yxa") != -1:
-
 			index = message.find(" :!yxa")
 			formatted = message[index:]
 			splitted = formatted.split()
@@ -119,7 +118,6 @@ class YxBot:
 		return s
 
 	def _receivingLoop(self):
-
 		time.sleep(3)
 
 		registered = False
@@ -132,9 +130,9 @@ class YxBot:
 				if c != "\n":
 					buff += c
 				else:
-					self._handleMessage(buff)
-
 					print buff
+
+					self._handleMessage(buff)
 
 					if not registered:
 						self._register()
