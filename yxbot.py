@@ -3,11 +3,11 @@
 
 import socket, random, time
 
-
 class YxBot:
 	yxfabrikat = []
 	yxtyp = []
 	kroppsdel = []
+	nickList = []
 
 	connection = ()
 
@@ -17,6 +17,7 @@ class YxBot:
 		self.channel = chan
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
+
 		self.adminNick = admin
 		self.silent = sil
 		self.paths = paths
@@ -49,8 +50,6 @@ class YxBot:
 
 		self.sock.send("USER " + self.nick + " . . :Detta är " + self.nick + "\n"
 					  +"NICK " + self.nick + "\n")
-		
-		return
 
 	def _joinChannel(self):
 		print "-- Joining channel " + self.channel + " --\n"
@@ -67,10 +66,24 @@ class YxBot:
 		else:
 			compiled = "PRIVMSG " + param + " :"+"\x01"+"ACTION " + message + "\n"
 
-		print "-- sending Message " + compiled
+		print "-- sending Message " + compiled.strip("\n") + " --\n"
 
 		self.sock.send(compiled)
 
+	def _getNicks(self):
+		print "-- Sending NAMES command --\n"
+		self.sock.send("NAMES\n")
+
+	def _updateNicklist(self, message):
+		print "-- Updating NickList --\n"
+		self.nickList = []
+		index = message.find(":"+self.nick)
+		text = message[index + 1:]
+		text = text.split()
+		self.nickList = text
+
+		print "NickList contains: "
+		print self.nickList
 
 	def _pong(self, ping):
 		print "-- Answering PING with PONG :" + ping + " --\n"
@@ -83,6 +96,12 @@ class YxBot:
 			ping = ping[1:]
 
 			self._pong(ping)
+
+		if message.find("PART") != -1 or message.find("JOIN") != -1:
+			self._getNicks()
+
+		if message.find("353") != -1 and message.find(self.nick) != -1:
+			self._updateNicklist(message)
 
 		if message.find(":"+self.adminNick+"!") != -1:
 			#if message.find(self.nick + ": quit") != -1:
@@ -100,12 +119,18 @@ class YxBot:
 			index = message.find(" :!yxa")
 			formatted = message[index:]
 			splitted = formatted.split()
-			length = len(splitted)
 
 			print splitted
 
-			if length == 2:
-				self._sendMessage(self._yxa(splitted[1]), True)
+			if len(splitted) == 2:
+				nick = splitted[1]
+				if self._onlyUsersInChannel:
+					if nick in self.nickList:
+						self._sendMessage(self._yxa(splitted[1]), True)
+					else:
+						self._sendMessage("Ursäkta, vem då?")
+				else:
+					self._sendMessage(self._yxa(splitted[1]), True)
 
 	def _yxa(self, nick):
 		print "-- Yxar " + nick + " --"
@@ -138,14 +163,17 @@ class YxBot:
 						self._register()
 						registered = True
 
-					if not joined and buff.find("MODE " + self.nick + " +") != -1:
+					if not joined and buff.find("MODE " + self.nick) != -1:
 						self._joinChannel()
 						joined = True
+						self._getNicks()
 
 					buff = ""
 
 		print "-- Loop stopped -- \n"
 
 random.seed()
-bot = YxBot(("irc.snoonet.org", 6667), "#sweden", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+#bot = YxBot(("irc.snoonet.org", 6667), "#sweden", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+bot = YxBot(("portlane.se.quakenet.org", 6667), "#anrop.net", "Yxbotten", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+#bot = YxBot(("irc.oftc.net", 6667), "#devscout", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
 bot.connect()
