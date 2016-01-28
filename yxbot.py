@@ -135,7 +135,6 @@ class YxBot:
 				registered = True
 
 			if not joined and ircmsg.find("MODE " + self.nick + " +") != -1:
-				time.sleep(3)
 				self._joinChannel()
 				joined = True
 
