@@ -15,19 +15,25 @@ class YxBot:
 
 	connection = ()
 
-	def __init__(self, conn, chan, nick, sil=False):
+	def __init__(self, conn, chan, nick, admin, paths, sil=False):
 		self.nick = nick
 		self.connection = conn
 		self.channel = chan
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
+		self.adminNick = admin
 		self.silent = sil
-		self._load("yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt")
+		self.paths = paths
+		self._load(paths)
 
-	def _load(self, fab, typ, krp):
-		self.yxfabrikat = open(fab).read().split('\n')
-		self.yxtyp = open(typ).read().split('\n')
-		self.kroppsdel = open(krp).read().split('\n')
+	def _load(self, paths):
+
+		print "-- Loading configuration from "
+		print paths
+
+		self.yxfabrikat = open(paths[0]).read().split('\n')
+		self.yxtyp = open(paths[1]).read().split('\n')
+		self.kroppsdel = open(paths[2]).read().split('\n')
 
 		print self.yxfabrikat
 		print self.yxtyp
@@ -81,15 +87,15 @@ class YxBot:
 			ping = ping[1:]
 
 			self._pong(ping)
-
-		#if message.find(self.nick + ": Go home") != -1:
-		#	self.disconnect()
+		if message.find(":"+self.adminNick+"!") != -1:
+			if message.find(self.nick + ": quit") != -1:
+				self.disconnect()
+			if message.find(self.nick + ": reload") != -1:
+				self._load(self.paths)
 
 		if message.find("Closing link") != -1 and message.find(self.nick) != -1:
 			self.disconnect();
 
-		#:Armandur!Rasmus@user/Armandur PRIVMSG Botten :!yxa Armandur
-		#:Armandur!Rasmus@user/Armandur PRIVMSG #Sweden :!yxa ZombieL
 		if message.find("PRIVMSG") != -1 and message.find(" :!yxa") != -1:
 
 			index = message.find(" :!yxa")
@@ -138,7 +144,5 @@ class YxBot:
 		print "-- Loop stopped -- \n"
 
 random.seed()
-bot = YxBot(("irc.snoonet.org", 6667), "#sweden", "YxBot")
+bot = YxBot(("irc.snoonet.org", 6667), "#sweden", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
 bot.connect()
-
-#bot = YxBot(("portlane.se.quakenet.org", 6667), "#anrop.net", "YxBot")
