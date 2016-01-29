@@ -35,6 +35,8 @@ class YxBot:
 
 	connection = ()
 
+	nickListBuffer = ""
+
 	def __init__(self, flags):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
@@ -89,7 +91,7 @@ class YxBot:
 		if not action:
 			compiled = "PRIVMSG " + param + " :" + message + "\n"
 		else:
-			compiled = "PRIVMSG " + param + " :"+"\x01"+"ACTION " + message + "\n"
+			compiled = "PRIVMSG " + param + " :" + "\x01" + "ACTION " + message + "\n"
 
 		print "-- sending Message " + compiled.strip("\n") + " --\n"
 
@@ -102,13 +104,20 @@ class YxBot:
 	def _updateNicklist(self, message):
 		print "-- Updating NickList --\n"
 		self.nickList = []
-		text = message[message.find(":"+self._nick()) + 1:].split()
 
-		text = [s.strip('@') for s in text]
-		text = [s.strip('%') for s in text]
-		text = [s.strip('+') for s in text]
+		message = message.splitlines()
 
-		self.nickList = text
+		list = []
+		for s in message:
+			t = s[s.find("#"):].split()
+			t = t[1:]
+			list.extend(t)
+
+		list = [s.strip('@') for s in list]
+		list = [s.strip('%') for s in list]
+		list = [s.strip('+') for s in list]
+		list = [s.strip(':') for s in list]
+		self.nickList = list
 
 		print "NickList contains: "
 		print self.nickList
@@ -128,10 +137,14 @@ class YxBot:
 		if message.find("PART") != -1 or message.find("JOIN") != -1:
 			self._getNicks()
 
-		lower = message.lower()
-		compiled = "353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :"
-		if lower.find(compiled.lower()) != -1:
-			self._updateNicklist(message)
+		nlist = "353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :"
+
+		if message.lower().find(nlist.lower()) != -1 :
+			self.nickListBuffer += message
+
+		if message.find("366 " + self._nick() + " * :End of /NAMES list.") != -1:
+			self._updateNicklist(self.nickListBuffer)
+			self.nickListBuffer = ""
 
 		#ONLY ADMIN NICK SHOULD BE ABLE TO USE
 
@@ -192,7 +205,7 @@ class YxBot:
 
 			if len(splitted) == 2:
 				nick = splitted[1]
-				if self.flags.getFlag("ONLYINCHANNEL"):
+				if self.flags.getFlag("USERS_ONLY"):
 					if nick in self.nickList:
 						self._sendMessage(self._yxa(splitted[1]), True)
 					else:
@@ -250,14 +263,21 @@ flags = Flags()
 # flags.setFlag("SILENT", False)
 # flags.setFlag("ONLYINCHANNEL", False)
 
-flags.setFlag("CONNECTION", ("irc.oftc.net", 6667))
-flags.setFlag("CHANNEL", "#armandur")
+flags.setFlag("CONNECTION", ("irc.snoonet.org", 6667))
+flags.setFlag("CHANNEL", "#sweden")
 flags.setFlag("NICK", "YxBot")
 flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
 flags.setFlag("ADMIN", "Armandur")
 flags.setFlag("SILENT", False)
-flags.setFlag("ONLYINCHANNEL", False)
+flags.setFlag("USERS_ONLY", False)
+
+# flags.setFlag("CONNECTION", ("irc.oftc.net", 6667))
+# flags.setFlag("CHANNEL", "#armandur")
+# flags.setFlag("NICK", "YxBot")
+# flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+# flags.setFlag("ADMIN", "Armandur")
+# flags.setFlag("SILENT", False)
+# flags.setFlag("ONLYINCHANNEL", False)
 
 bot = YxBot(flags)
-#bot = YxBot(("irc.oftc.net", 6667), "#devscout", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
 bot.connect()
