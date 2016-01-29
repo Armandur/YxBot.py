@@ -3,27 +3,46 @@
 
 import socket, random, time
 
+class Flags:
+	_flags = {}
+
+	def __init__(self):
+		self._flags["INIT"] = True
+
+	def setFlag(self, flag, value):
+		self._flags[flag] = value
+
+	def getFlag(self, flag):
+		if flag in self._flags:
+			return self._flags[flag]
+		else:
+			print "##FLAG NOT IN DICT##\n"
+			return False
+
+	def removeFlag(self, flag):
+		if flag in self._flags:
+			del self._flags[flag]
+		else:
+			print "##FLAG NOT PRESENT##"
+
 class YxBot:
 	yxfabrikat = []
 	yxtyp = []
 	kroppsdel = []
 	nickList = []
 
+	flags = Flags()
+
 	connection = ()
 
-	def __init__(self, conn, chan, nick, admin, paths, sil=False):
-		self.nick = nick
-		self.connection = conn
-		self.channel = chan
+	def __init__(self, flags):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
+		self.flags.setFlag("CAN_QUIT", False)
+		self._load()
 
-		self.adminNick = admin
-		self.silent = sil
-		self.paths = paths
-		self._load(paths)
-
-	def _load(self, paths):
+	def _load(self):
+		paths = self.flags.getFlag("PATHS")
 
 		print "-- Loading configuration from "
 		print paths
@@ -37,8 +56,14 @@ class YxBot:
 		print self.kroppsdel
 		print self._yxa("test")
 
+	def _nick(self):
+		return str(self.flags.getFlag("NICK"))
+
+	def _channel(self):
+		return str(self.flags.getFlag("CHANNEL"))
+
 	def connect(self):
-		self.sock.connect(self.connection)
+		self.sock.connect(self.flags.getFlag("CONNECTION"))
 		self._receivingLoop()
 
 	def disconnect(self):
@@ -46,20 +71,20 @@ class YxBot:
 		self.running = False
 
 	def _register(self):
-		print "-- Registering with " + self.nick + " --\n"
+		print "-- Registering with " + self._nick() + " --\n"
 
-		self.sock.send("USER " + self.nick + " . . :Detta är " + self.nick + "\n"
-					  +"NICK " + self.nick + "\n")
+		self.sock.send("USER " + self._nick() + " . . :Detta är " + self._nick() + "\n"
+					  +"NICK " + self._nick() + "\n")
 
 	def _joinChannel(self):
-		print "-- Joining channel " + self.channel + " --\n"
-		self.sock.send("JOIN " + self.channel + "\n")
+		print "-- Joining channel " + self._channel() + " --\n"
+		self.sock.send("JOIN " + self._channel() + "\n")
 
 	def _sendMessage(self, message, action=False):
-		if self.silent:
-			param = "Armandur"
+		if self.flags.getFlag("SILENT"):
+			param = self.flags.getFlag("ADMIN")
 		else:
-			param = self.channel
+			param = self._channel()
 
 		if not action:
 			compiled = "PRIVMSG " + param + " :" + message + "\n"
@@ -77,9 +102,12 @@ class YxBot:
 	def _updateNicklist(self, message):
 		print "-- Updating NickList --\n"
 		self.nickList = []
-		index = message.find(":"+self.nick)
-		text = message[index + 1:]
-		text = text.split()
+		text = message[message.find(":"+self._nick()) + 1:].split()
+
+		text = [s.strip('@') for s in text]
+		text = [s.strip('%') for s in text]
+		text = [s.strip('+') for s in text]
+
 		self.nickList = text
 
 		print "NickList contains: "
@@ -100,31 +128,71 @@ class YxBot:
 		if message.find("PART") != -1 or message.find("JOIN") != -1:
 			self._getNicks()
 
-		if message.find("353") != -1 and message.find(self.nick) != -1:
+		lower = message.lower()
+		compiled = "353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :"
+		if lower.find(compiled.lower()) != -1:
 			self._updateNicklist(message)
 
-		if message.find(":"+self.adminNick+"!") != -1:
-			#if message.find(self.nick + ": quit") != -1:
-			#	self.disconnect()
-			if message.find(self.nick + ": reload") != -1:
-				self._load(self.paths)
-			if message.find(self.nick + ": count") != -1:
+		#ONLY ADMIN NICK SHOULD BE ABLE TO USE
+
+		if message.find(":" + self.flags.getFlag("ADMIN") + "!") != -1:
+			if message.find(self._nick() + ": quit") != -1 and self.flags.getFlag("CAN_QUIT"):
+				self.disconnect()
+			if message.find(self._nick() + ": reload") != -1:
+				self._load()
+			if message.find(self._nick() + ": count") != -1:
 				text = "Fabrikat: " + str(len(self.yxfabrikat)) + ", Typer: " + str(len(self.yxtyp)) + ", Kroppsdelar: " + str(len(self.kroppsdel))
 				self._sendMessage(text)
 
-		if message.find("Closing link") != -1 and message.find(self.nick) != -1:
+			#EDITING FLAGS FROM CHAT
+			if message.find(self._nick() + ": setFlag") != -1 or message.find(self._nick() + ": getFlag") != -1 or message.find(self._nick() + ": delFlag") != -1:
+				print "-- EDITING FLAGS FROM CHAT --\n"
+				if message.find(self._nick() + ": setFlag") != -1:
+					print "-- SET FLAG --\n"
+					splitted = message[message.find("setFlag"):].split()
+					if len(splitted) == 4: #1 setFlag, 2 flag, 3 type, 4 value ex, setFlag SILENT BOOL True => ['setFlag', 'SILENT', 'BOOL', 'True']
+						if splitted[2] == "STR":
+							self.flags.setFlag(splitted[1], splitted[3])
+						elif splitted[2] == "NUM":
+							value = -1
+							try:
+								value = int(splitted[3])
+							except ValueError:
+								value = -1
+
+							self.flags.setFlag(splitted[1], value)
+						elif splitted[2] == "BOOL":
+							value = False
+							if splitted[3] == "True":
+								value = True
+							self.flags.setFlag(splitted[1], value)
+
+				if message.find(self._nick() + ": getFlag") != -1:
+					print "-- GET FLAG --\n"
+					splitted = message[message.find("getFlag"):].split()
+					if len(splitted) == 2: #1 getFlag, 2 flag
+						self._sendMessage(splitted[1] + " : " + str(self.flags.getFlag(splitted[1])))
+					print self.flags._flags
+
+				if message.find(self._nick() + ": delFlag") != -1:
+					print "-- DEL FLAG --\n"
+					splitted = message[message.find("delFlag"):].split()
+					if len(splitted) == 2: #1 delFlag, 2 flag
+						self.flags.removeFlag(splitted[1])
+			#END EDIT FLAGS
+		#END ADMIN COMMANDS
+
+		if message.find("Closing link") != -1 and message.find(self._nick()) != -1:
 			self.disconnect();
 
 		if message.find("PRIVMSG") != -1 and message.find(" :!yxa") != -1:
-			index = message.find(" :!yxa")
-			formatted = message[index:]
-			splitted = formatted.split()
+			splitted = message[message.find(" :!yxa"):].split()
 
 			print splitted
 
 			if len(splitted) == 2:
 				nick = splitted[1]
-				if self._onlyUsersInChannel:
+				if self.flags.getFlag("ONLYINCHANNEL"):
 					if nick in self.nickList:
 						self._sendMessage(self._yxa(splitted[1]), True)
 					else:
@@ -163,17 +231,33 @@ class YxBot:
 						self._register()
 						registered = True
 
-					if not joined and buff.find("MODE " + self.nick) != -1:
+					if not joined and buff.find("MODE " + self._nick()) != -1:
 						self._joinChannel()
 						joined = True
-						self._getNicks()
-
 					buff = ""
 
 		print "-- Loop stopped -- \n"
 
 random.seed()
 #bot = YxBot(("irc.snoonet.org", 6667), "#sweden", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
-bot = YxBot(("portlane.se.quakenet.org", 6667), "#anrop.net", "Yxbotten", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+
+flags = Flags()
+# flags.setFlag("CONNECTION", ("portlane.se.quakenet.org", 6667))
+# flags.setFlag("CHANNEL", "#anrop.net")
+# flags.setFlag("NICK", "Yxbotten")
+# flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+# flags.setFlag("ADMIN", "Armandur")
+# flags.setFlag("SILENT", False)
+# flags.setFlag("ONLYINCHANNEL", False)
+
+flags.setFlag("CONNECTION", ("irc.oftc.net", 6667))
+flags.setFlag("CHANNEL", "#armandur")
+flags.setFlag("NICK", "YxBot")
+flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+flags.setFlag("ADMIN", "Armandur")
+flags.setFlag("SILENT", False)
+flags.setFlag("ONLYINCHANNEL", False)
+
+bot = YxBot(flags)
 #bot = YxBot(("irc.oftc.net", 6667), "#devscout", "YxBot", "Armandur", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
 bot.connect()
