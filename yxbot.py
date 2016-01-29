@@ -41,6 +41,7 @@ class YxBot:
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
 		self.flags.setFlag("CAN_QUIT", False)
+		self.flags.setFlag("RAW_ENABLED", False)
 		self._load()
 
 	def _load(self):
@@ -154,8 +155,13 @@ class YxBot:
 			if message.find(self._nick() + ": reload") != -1:
 				self._load()
 			if message.find(self._nick() + ": count") != -1:
-				text = "Fabrikat: " + str(len(self.yxfabrikat)) + ", Typer: " + str(len(self.yxtyp)) + ", Kroppsdelar: " + str(len(self.kroppsdel))
-				self._sendMessage(text)
+				self._sendMessage("Fabrikat: " + str(len(self.yxfabrikat)) + ", Typer: " + str(len(self.yxtyp)) + ", Kroppsdelar: " + str(len(self.kroppsdel)))
+			if message.find(self._nick() + ": raw") != -1 and self.flags.getFlag("RAW_ENABLED"):
+				text = message[message.find(": raw"):]
+				text = text.split(": raw")
+				text = text[1:]
+
+				self.sock.send(text[0].strip() + "\n")
 
 			#EDITING FLAGS FROM CHAT
 			if message.find(self._nick() + ": setFlag") != -1 or message.find(self._nick() + ": getFlag") != -1 or message.find(self._nick() + ": delFlag") != -1:
