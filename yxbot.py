@@ -100,7 +100,7 @@ class YxBot:
 
 	def _getNicks(self):
 		print "-- Sending NAMES command --\n"
-		self.sock.send("NAMES\n")
+		self.sock.send("NAMES " + self.flags.getFlag("CHANNEL") + "\n")
 
 	def _updateNicklist(self, message):
 		print "-- Updating NickList --\n"
@@ -135,7 +135,7 @@ class YxBot:
 
 			self._pong(ping)
 
-		if message.find("PART") != -1 or message.find("JOIN") != -1:
+		if message.find("PART") != -1 or message.find("JOIN") != -1 or message.find("NICK") != -1:
 			self._getNicks()
 
 		nlist = "353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :"
@@ -143,7 +143,7 @@ class YxBot:
 		if message.lower().find(nlist.lower()) != -1 :
 			self.nickListBuffer += message
 
-		if message.find("366 " + self._nick() + " * :End of /NAMES list.") != -1:
+		if message.find("366 " + self._nick()) != -1:
 			self._updateNicklist(self.nickListBuffer)
 			self.nickListBuffer = ""
 
