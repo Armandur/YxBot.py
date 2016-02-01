@@ -78,7 +78,7 @@ class YxBot:
 		print "-- Registering with " + self._nick() + " --\n"
 
 		self.sock.send("USER " + self._nick() + " . . :Detta är " + self._nick() + "\n"
-					  +"NICK " + self._nick() + "\n")
+					 + "NICK " + self._nick() + "\n")
 
 	def _joinChannel(self):
 		if not self.flags.getFlag("IN_CHANNEL"):
@@ -145,9 +145,8 @@ class YxBot:
 
 	def _handleMessage(self, message):
 		if message.find("PING :") != -1:
-			ping = message.split();
-			ping = ping[1]
-			ping = ping[1:]
+			ping = message.split()
+			ping = ping[1][1:]
 
 			self._pong(ping)
 
@@ -174,6 +173,9 @@ class YxBot:
 
 			if message.find(self._nick() + ": count") != -1:
 				self._sendMessage("Fabrikat: " + str(len(self.yxfabrikat)) + ", Typer: " + str(len(self.yxtyp)) + ", Kroppsdelar: " + str(len(self.kroppsdel)))
+
+			if message.find(self._nick() + ": list") != -1:
+				self._sendMessage("Fabrikat: " + str(self.yxfabrikat) + ", Typer: " + str(self.yxtyp) + ", Kroppsdelar: " + str(self.kroppsdel) + "\n")
 
 			if message.find(self._nick() + ": raw") != -1 and self.flags.getFlag("RAW_ENABLED"):
 				text = message[message.find(": raw"):]
@@ -240,7 +242,7 @@ class YxBot:
 				self._joinChannel()
 
 		if message.find("Closing link") != -1 and message.find(self._nick()) != -1:
-			self.disconnect();
+			self.disconnect()
 
 		if message.find("PRIVMSG") != -1 and message.find(" :!yxa") != -1:
 			splitted = message[message.find(" :!yxa"):].split()
@@ -297,6 +299,7 @@ class YxBot:
 
 random.seed()
 flags = Flags()
+
 # flags.setFlag("CONNECTION", ("portlane.se.quakenet.org", 6667))
 # flags.setFlag("CHANNEL", "#anrop.net")
 # flags.setFlag("NICK", "Yxbotten")
