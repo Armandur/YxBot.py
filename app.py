@@ -1,8 +1,9 @@
 import random
-import YxBot
+from YxBot import YxBot
+from Flags import Flags
 
 random.seed()
-flags = Flags.Flags()
+flags = Flags()
 
 # flags.setFlag("CONNECTION", ("portlane.se.quakenet.org", 6667))
 # flags.setFlag("CHANNEL", "#anrop.net")
