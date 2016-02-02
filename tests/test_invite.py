@@ -3,6 +3,7 @@ from mock import *
 import handlers
 import unittest
 
+
 class TestInviteHandler(unittest.TestCase):
     def test_invited(self):
         flags = Flags()

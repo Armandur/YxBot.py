@@ -1,5 +1,6 @@
 from MessageHandler import MessageHandler
 
+
 class NicklistHandler(MessageHandler):
 
     nicklistBuffer = ""
