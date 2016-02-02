@@ -11,4 +11,4 @@ class DummyMessageAssertBot(DummyBot):
         self.test = test
 
     def send(self, message):
-        self.test.assertEqual(message, assertMessage)
+        self.test.assertEqual(message, self.assertMessage)

@@ -4,6 +4,8 @@
 import socket, random, time, Flags
 
 from handlers import PingHandler
+from handlers import KickedHandler
+from handlers import InviteHandler
 
 class YxBot:
 	yxfabrikat = []
@@ -20,9 +22,16 @@ class YxBot:
 	def __init__(self, flags):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
+
+		# Default flags
 		self.flags.setFlag("CAN_QUIT", False)
 		self.flags.setFlag("RAW_ENABLED", False)
 		self.flags.setFlag("IN_CHANNEL", False)
+
+		# Update flags based on user flags
+		self.flags._flags.update(flags._flags)
+
+
 		self._initHandlers()
 		self._load()
 
@@ -30,6 +39,7 @@ class YxBot:
 		self.handlers = [
 			KickedHandler(self, self.flags),
 			PingHandler(self, self.flags),
+			InviteHandler(self, self.flags)
 		]
 
 	def _load(self):
@@ -207,16 +217,6 @@ class YxBot:
 						self.flags.removeFlag(splitted[1])
 			#END EDIT FLAGS
 		#END ADMIN COMMANDS
-
-		#:Armandur!~Rasmus@c-c6c1e055.03-48-68736410.cust.bredbandsbolaget.se INVITE YxBot :#armandur_test
-		if message.find("INVITE " + self._nick()) != -1 and not self.flags.getFlag("IN_CHANNEL"):
-			splitted = message[message.find("INVITE " + self._nick() + " :"):].split()
-
-			if len(splitted) == 3:
-				chan = splitted[2][1:]
-				print "-- Received INVITE to " + chan + " --\n"
-				self._changeChannel(chan)
-				self._joinChannel()
 
 		if message.find("Closing link") != -1 and message.find(self._nick()) != -1:
 			self.disconnect()
