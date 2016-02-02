@@ -1,29 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import socket, random, time
-
-class Flags:
-	_flags = {}
-
-	def __init__(self):
-		self._flags["INIT"] = True
-
-	def setFlag(self, flag, value):
-		self._flags[flag] = value
-
-	def getFlag(self, flag):
-		if flag in self._flags:
-			return self._flags[flag]
-		else:
-			print "##FLAG NOT IN DICT##\n"
-			return False
-
-	def removeFlag(self, flag):
-		if flag in self._flags:
-			del self._flags[flag]
-		else:
-			print "##FLAG NOT PRESENT##"
+import socket, random, time, Flags
 
 class YxBot:
 	yxfabrikat = []
@@ -31,7 +9,7 @@ class YxBot:
 	kroppsdel = []
 	nickList = []
 
-	flags = Flags()
+	flags = Flags.Flags()
 
 	connection = ()
 
@@ -145,17 +123,13 @@ class YxBot:
 
 	def _handleMessage(self, message):
 		if message.find("PING :") != -1:
-			ping = message.split()
-			ping = ping[1][1:]
-
+			ping = message.split()[1][1:]
 			self._pong(ping)
 
-		if message.find("PART") != -1 or message.find("JOIN") != -1 or message.find("NICK") != -1:
+		if message.find("PART") != -1 or message.find("JOIN") != -1 or message.find("NICK") != -1 or message.find("QUIT") != -1:
 			self._getNicks()
 
-		nlist = "353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :"
-
-		if message.lower().find(nlist.lower()) != -1 :
+		if message.lower().find(str("353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :").lower()) != -1:
 			self.nickListBuffer += message
 
 		if message.find("366 " + self._nick()) != -1:
@@ -298,7 +272,7 @@ class YxBot:
 		print "-- Loop stopped -- \n"
 
 random.seed()
-flags = Flags()
+flags = Flags.Flags()
 
 # flags.setFlag("CONNECTION", ("portlane.se.quakenet.org", 6667))
 # flags.setFlag("CHANNEL", "#anrop.net")
@@ -308,21 +282,21 @@ flags = Flags()
 # flags.setFlag("SILENT", False)
 # flags.setFlag("USERS_ONLY", False)
 
-flags.setFlag("CONNECTION", ("irc.snoonet.org", 6667))
-flags.setFlag("CHANNEL", "#sweden")
-flags.setFlag("NICK", "YxBot")
-flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
-flags.setFlag("ADMIN", "Armandur")
-flags.setFlag("SILENT", False)
-flags.setFlag("USERS_ONLY", False)
-
-# flags.setFlag("CONNECTION", ("irc.oftc.net", 6667))
-# flags.setFlag("CHANNEL", "#armandur_test")
+# flags.setFlag("CONNECTION", ("irc.snoonet.org", 6667))
+# flags.setFlag("CHANNEL", "#sweden")
 # flags.setFlag("NICK", "YxBot")
 # flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
 # flags.setFlag("ADMIN", "Armandur")
 # flags.setFlag("SILENT", False)
 # flags.setFlag("USERS_ONLY", False)
+
+flags.setFlag("CONNECTION", ("irc.oftc.net", 6667))
+flags.setFlag("CHANNEL", "#armandur_test")
+flags.setFlag("NICK", "YxBot")
+flags.setFlag("PATHS", ["yxfabrikat.txt", "yxtyp.txt", "kroppsdel.txt"])
+flags.setFlag("ADMIN", "Armandur")
+flags.setFlag("SILENT", False)
+flags.setFlag("USERS_ONLY", False)
 
 bot = YxBot(flags)
 bot.connect()
