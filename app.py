@@ -1,5 +1,5 @@
 import random
-from YxBot import YxBot
+from yxbot import YxBot
 from Flags import Flags
 
 random.seed()

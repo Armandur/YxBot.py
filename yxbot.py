@@ -33,7 +33,7 @@ class YxBot:
 		self.flags._flags.update(flags._flags)
 
 
-		self._initHandlers()
+		self._init_handlers()
 		self._load()
 
 	def _init_handlers(self):
