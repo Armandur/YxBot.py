@@ -11,7 +11,7 @@ class TestNicklistHandler(unittest.TestCase):
         bot = DummyNicklistBot(flags)
         handler = handlers.NicklistHandler(bot, flags)
 
-        message = ["irc.server.net 353 " + self._nick() + " = #Test :@Op %HalfOp +Voice Normal", "irc.server.net 353 " + self._nick() + " = #Test :Normal2 Normal3"]
+        message = ["irc.server.net 353 " + bot._nick() + " = #Test :@Op %HalfOp +Voice Normal", "irc.server.net 353 " + bot._nick() + " = #Test :Normal2 Normal3"]
 
         for msg in message:
             handler.handle_message(msg)
