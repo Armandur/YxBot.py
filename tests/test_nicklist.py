@@ -18,3 +18,6 @@ class TestNicklistHandler(unittest.TestCase):
 
         expectedNicks = set(["Op", "HalfOp", "Voice", "Normal", "Normal2", "Normal3"])
         self.assertItemsEqual(handler.bot.nicklist, expectedNicks)
+
+if __name__ == '__main__':
+    unittest.main()
