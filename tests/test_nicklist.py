@@ -7,11 +7,12 @@ class TestNicklistHandler(unittest.TestCase):
     def test_nicklist(self):
         flags = Flags()
         flags.setFlag("NICK", "BOT")
+        flags.setFlag("CHANNEL", "#TEST")
 
         bot = DummyNicklistBot(flags)
         handler = handlers.NicklistHandler(bot, flags)
 
-        message = ["irc.server.net 353 " + bot._nick() + " = #Test :@Op %HalfOp +Voice Normal", "irc.server.net 353 " + bot._nick() + " = #Test :Normal2 Normal3"]
+        message = ["irc.server.net 353 " + bot._nick() + " = #Test :@Op %HalfOp +Voice Normal\n", "irc.server.net 353 " + bot._nick() + " = #Test :Normal2 Normal3\n", "366 " + bot._nick()]
 
         for msg in message:
             handler.handle_message(msg)

@@ -23,12 +23,12 @@ class NicklistHandler(MessageHandler):
         for s in message:
             t = s[s.find("#"):].split()
             t = t[1:]
-            nicks.add(t)
+            nicks.update(t)
 
-        nicks = [s.strip('@') for s in nicks]
-        nicks = [s.strip('%') for s in nicks]
-        nicks = [s.strip('+') for s in nicks]
-        nicks = [s.strip(':') for s in nicks]
+        nicks = [s.replace(':', '') for s in nicks]
+        nicks = [s.replace('@', '') for s in nicks]
+        nicks = [s.replace('%', '') for s in nicks]
+        nicks = [s.replace('+', '') for s in nicks]
         self.bot.nicklist = nicks
 
 
