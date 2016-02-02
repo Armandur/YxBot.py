@@ -12,7 +12,7 @@ class TestInviteHandler(unittest.TestCase):
         flags.setFlag('NICK', 'BOT')
 
         bot = DummyBot(flags)
-        handler = handlers.KickedHandler(bot, flags)
+        handler = handlers.InviteHandler(bot, flags)
         handler.handle_message("INVITE BOT :#NEW_TEST")
 
         self.assertTrue(flags.getFlag("IN_CHANNEL"))
