@@ -5,6 +5,7 @@ class DummyBot:
     def _nick(self):
         return self.flags.getFlag('NICK')
 
+
 class DummyMessageAssertBot(DummyBot):
     def __init__(self, flags, test, assertMessage):
         self.assertMessage = assertMessage
@@ -12,6 +13,7 @@ class DummyMessageAssertBot(DummyBot):
 
     def send(self, message):
         self.test.assertEqual(message, self.assertMessage)
+
 
 class DummyNicklistBot(DummyBot):
 

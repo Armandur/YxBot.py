@@ -3,6 +3,7 @@ from mock import *
 import handlers
 import unittest
 
+
 class TestNicklistHandler(unittest.TestCase):
     def test_nicklist(self):
         flags = Flags()

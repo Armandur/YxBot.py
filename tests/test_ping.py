@@ -3,6 +3,7 @@ from mock import *
 import handlers
 import unittest
 
+
 class TestPingHandler(unittest.TestCase):
 
   def test_ping(self):

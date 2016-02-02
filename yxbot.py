@@ -8,6 +8,7 @@ from handlers import KickedHandler
 from handlers import InviteHandler
 from handlers import NicklistHandler
 
+
 class YxBot:
 	yxfabrikat = set()
 	yxtyp = set()
@@ -31,7 +32,6 @@ class YxBot:
 
 		# Update flags based on user flags
 		self.flags._flags.update(flags._flags)
-
 
 		self._init_handlers()
 		self._load()
