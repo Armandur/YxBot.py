@@ -13,10 +13,7 @@ class TestInviteHandler(unittest.TestCase):
 
         bot = DummyBot(flags)
         handler = handlers.InviteHandler(bot, flags)
-        handler.handle_message("INVITE BOT :#NEW_TEST")
-
-        self.assertTrue(flags.getFlag("IN_CHANNEL"))
-        self.assertEquals(flags.getFlag("CHANNEL"), "#NEW_TEST")
+        self.assertTrue(handler.handle_message("INVITE BOT :#NEW_TEST"))
 
 if __name__ == '__main__':
     unittest.main()
