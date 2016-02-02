@@ -9,7 +9,7 @@ class NicklistHandler(MessageHandler):
             self.bot._getNicks()
         elif message.lower().find(str("353 " + self.bot._nick() + " = " + self.flags.getFlag("CHANNEL") + " :").lower()) != -1:
             self.nicklistBuffer += message
-        elif message.find("366 " + self._nick()) != -1:
+        elif message.find("366 " + self.bot._nick()) != -1:
             self._updateNicklist(self.nicklistBuffer)
             self.nicklistBuffer = ""
 
