@@ -6,12 +6,13 @@ import socket, random, time, Flags
 from handlers import PingHandler
 from handlers import KickedHandler
 from handlers import InviteHandler
+from handlers import NicklistHandler
 
 class YxBot:
-	yxfabrikat = []
-	yxtyp = []
-	kroppsdel = []
-	nickList = []
+	yxfabrikat = set()
+	yxtyp = set()
+	kroppsdel = set()
+	nicklist = set()
 
 	flags = Flags.Flags()
 
@@ -39,7 +40,8 @@ class YxBot:
 		self.handlers = [
 			KickedHandler(self, self.flags),
 			PingHandler(self, self.flags),
-			InviteHandler(self, self.flags)
+			InviteHandler(self, self.flags),
+			NicklistHandler(self, self.flags)
 		]
 
 	def _load(self):
@@ -118,40 +120,9 @@ class YxBot:
 		print "-- Sending NAMES command --\n"
 		self.sock.send("NAMES " + self.flags.getFlag("CHANNEL") + "\n")
 
-	def _updateNicklist(self, message):
-		print "-- Updating NickList --\n"
-		self.nickList = []
-
-		message = message.splitlines()
-
-		list = []
-		for s in message:
-			t = s[s.find("#"):].split()
-			t = t[1:]
-			list.extend(t)
-
-		list = [s.strip('@') for s in list]
-		list = [s.strip('%') for s in list]
-		list = [s.strip('+') for s in list]
-		list = [s.strip(':') for s in list]
-		self.nickList = list
-
-		print "NickList contains: "
-		print self.nickList
-
 	def _handleMessage(self, message):
 		for handler in self.handlers:
 			handler.handle_message(message)
-
-		if message.find("PART") != -1 or message.find("JOIN") != -1 or message.find("NICK") != -1 or message.find("QUIT") != -1:
-			self._getNicks()
-
-		if message.lower().find(str("353 " + self._nick() + " = " + self.flags.getFlag("CHANNEL") + " :").lower()) != -1:
-			self.nickListBuffer += message
-
-		if message.find("366 " + self._nick()) != -1:
-			self._updateNicklist(self.nickListBuffer)
-			self.nickListBuffer = ""
 
 		#ONLY ADMIN NICK SHOULD BE ABLE TO USE
 
@@ -229,7 +200,7 @@ class YxBot:
 			if len(splitted) == 2:
 				nick = splitted[1]
 				if self.flags.getFlag("USERS_ONLY"):
-					if nick in self.nickList:
+					if nick in self.nicklist:
 						self._sendMessage(self._yxa(splitted[1]), True)
 					else:
 						self._sendMessage("Ursäkta, vem då?")
