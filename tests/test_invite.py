@@ -14,6 +14,7 @@ class TestInviteHandler(unittest.TestCase):
         bot = DummyBot(flags)
         handler = handlers.InviteHandler(bot, flags)
         self.assertTrue(handler.handle_message("INVITE BOT :#NEW_TEST"))
+        self.assertTrue(handler.handle_message(":Armandur!~Rasmus@localhost.ip INVITE BOT :#armandur_test"))
 
 if __name__ == '__main__':
     unittest.main()
