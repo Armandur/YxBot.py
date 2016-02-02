@@ -3,6 +3,8 @@
 
 import socket, random, time, Flags
 
+from handlers import PingHandler
+
 class YxBot:
 	yxfabrikat = []
 	yxtyp = []
@@ -21,7 +23,14 @@ class YxBot:
 		self.flags.setFlag("CAN_QUIT", False)
 		self.flags.setFlag("RAW_ENABLED", False)
 		self.flags.setFlag("IN_CHANNEL", False)
+		self._initHandlers()
 		self._load()
+
+	def _init_handlers(self):
+		self.handlers = [
+			KickedHandler(self, self.flags),
+			PingHandler(self, self.flags),
+		]
 
 	def _load(self):
 		paths = self.flags.getFlag("PATHS")
@@ -51,6 +60,9 @@ class YxBot:
 	def disconnect(self):
 		self.sock.send("QUIT\n")
 		self.running = False
+
+	def send(self, message):
+		self.sock.send(message)
 
 	def _register(self):
 		print "-- Registering with " + self._nick() + " --\n"
@@ -117,14 +129,9 @@ class YxBot:
 		print "NickList contains: "
 		print self.nickList
 
-	def _pong(self, ping):
-		print "-- Answering PING with PONG :" + ping + " --\n"
-		self.sock.send("PONG :" + ping + "\n")
-
 	def _handleMessage(self, message):
-		if message.find("PING :") != -1:
-			ping = message.split()[1][1:]
-			self._pong(ping)
+		for handler in self.handlers:
+			handler.handle_message(message)
 
 		if message.find("PART") != -1 or message.find("JOIN") != -1 or message.find("NICK") != -1 or message.find("QUIT") != -1:
 			self._getNicks()
@@ -200,10 +207,6 @@ class YxBot:
 						self.flags.removeFlag(splitted[1])
 			#END EDIT FLAGS
 		#END ADMIN COMMANDS
-
-		if message.lower().find(str.lower("KICK " + self.flags.getFlag("CHANNEL") + " " + self._nick())) != -1:
-			print "-- Kicked from channel --\n"
-			self.flags.setFlag("IN_CHANNEL", False)
 
 		#:Armandur!~Rasmus@c-c6c1e055.03-48-68736410.cust.bredbandsbolaget.se INVITE YxBot :#armandur_test
 		if message.find("INVITE " + self._nick()) != -1 and not self.flags.getFlag("IN_CHANNEL"):
