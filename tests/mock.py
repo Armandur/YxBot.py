@@ -43,3 +43,14 @@ class DummyAdminBot(DummyBot):
 
     def _sendMessage(self, msg):
         pass
+
+
+class DummyAxeBot(DummyBot):
+    yxfabrikat = set()
+    yxtyp = set()
+    kroppsdel = set()
+
+    nicklist = set()
+
+    def _sendMessage(self, message, action):
+        print message
