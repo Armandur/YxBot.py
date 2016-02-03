@@ -9,11 +9,13 @@ from handlers import InviteHandler
 from handlers import NicklistHandler
 from handlers import AdminHandler
 from handlers import FlagEditHandler
+from handlers import AxeHandler
 
 class YxBot:
 	yxfabrikat = set()
 	yxtyp = set()
 	kroppsdel = set()
+
 	nicklist = set()
 
 	flags = Flags.Flags()
@@ -44,7 +46,8 @@ class YxBot:
 			InviteHandler(self, self.flags),
 			NicklistHandler(self, self.flags),
 			AdminHandler(self, self.flags),
-			FlagEditHandler(self, self.flags)
+			FlagEditHandler(self, self.flags),
+			AxeHandler(self, self.flags)
 		]
 
 	def _load(self):
@@ -53,14 +56,26 @@ class YxBot:
 		print "-- Loading configuration from "
 		print paths
 
-		self.yxfabrikat = open(paths[0]).read().split('\n')
-		self.yxtyp = open(paths[1]).read().split('\n')
-		self.kroppsdel = open(paths[2]).read().split('\n')
+		sets = [set(), set(), set()]
+
+		i = 0
+		for path in paths:
+			f = open(path)
+			for l in f:
+				if l not in sets[i]:
+					sets[i].add(l.strip('\n'))
+			f.close()
+			i += 1
+
+		self.yxfabrikat = sets[0]
+		self.yxtyp = sets[1]
+		self.kroppsdel = sets[2]
 
 		print self.yxfabrikat
 		print self.yxtyp
 		print self.kroppsdel
-		print self._yxa("test")
+
+		print AxeHandler(self, self.flags).yxa("test")
 
 	def _nick(self):
 		return str(self.flags.getFlag("NICK"))
@@ -129,31 +144,6 @@ class YxBot:
 
 		if message.find("Closing link") != -1 and message.find(self._nick()) != -1:
 			self.disconnect()
-
-		if message.find("PRIVMSG") != -1 and message.find(" :!yxa") != -1:
-			splitted = message[message.find(" :!yxa"):].split()
-
-			print splitted
-
-			if len(splitted) == 2:
-				nick = splitted[1]
-				if self.flags.getFlag("USERS_ONLY"):
-					if nick in self.nicklist:
-						self._sendMessage(self._yxa(splitted[1]), True)
-					else:
-						self._sendMessage("Ursäkta, vem då?")
-				else:
-					self._sendMessage(self._yxa(splitted[1]), True)
-
-	def _yxa(self, nick):
-		print "-- Yxar " + nick + " --"
-		fab = random.choice(self.yxfabrikat)
-		typ = random.choice(self.yxtyp)
-		krp = random.choice(self.kroppsdel)
-
-		s = "tar en " + typ + " tillverkad av " + fab + " och hugger den i " + krp + " på " + nick + ".\n"
-
-		return s
 
 	def _receivingLoop(self):
 		time.sleep(3)
