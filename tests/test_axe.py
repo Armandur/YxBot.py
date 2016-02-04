@@ -26,10 +26,12 @@ class TestAxeHandler(unittest.TestCase):
         target = "User"
 
         handler.handle_message("PRIVMSG :!yxa " + target)
+        handler.handle_message("PRIVMSG :.yxa " + target)
 
         flags.setFlag("USERS_ONLY", True)
 
         handler.handle_message("PRIVMSG :!yxa " + target)
+        handler.handle_message("PRIVMSG :.yxa " + target)
 
         expected = "tar en bredyxa tillverkad av Wetterlings och hugger den i ryggen på " + target + ".\n"
 
