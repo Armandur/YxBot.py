@@ -9,7 +9,7 @@ class AxeHandler(MessageHandler):
     def handle_message(self, message):
         if message.find("PRIVMSG") != -1 and (message.find(" :!yxa") != -1 or message.find(" :.yxa") != -1):
             splitted = ""
-            
+
             if message.find(" :!yxa") != -1:
                 splitted = message[message.find(" :!yxa"):].split()
             elif message.find(" :.yxa") != -1:
