@@ -8,6 +8,9 @@ class DummyBot:
     def _nick(self):
         return self.flags.getFlag('NICK')
 
+    def joinChannel(self):
+        pass
+
 
 class DummyMessageAssertBot(DummyBot):
     def __init__(self, flags, test, assertMessage):

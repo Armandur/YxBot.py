@@ -9,6 +9,6 @@ class InviteHandler(MessageHandler):
             if len(splitted) == 3:
                 chan = splitted[2][1:]
                 print "-- Received INVITE to " + chan + " --\n"
+                self.bot.joinChannel()
                 return True
-
         return False
