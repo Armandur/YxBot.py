@@ -55,13 +55,13 @@ class YxBot:
 		print "-- Reading configuration file config.cfg --\n"
 
 		#Read connection settings from config-file
-		self.flags.setFlag("CONNECTION", (config.get("conn", "server"), config.get("conn", "port")))
+		self.flags.setFlag("CONNECTION", (config.get("conn", "server"), config.getint("conn", "port")))
 		self.flags.setFlag("CHANNEL", config.get("conn", "channel"))
 		self.flags.setFlag("NICK", config.get("conn", "nick"))
 
 		#Read configuration settings from config-file
 		self.flags.setFlag("ADMIN", config.get("conf", "admin"))
-		self.flags.setFlag("USERS_ONLY", config.get("conf", "users_only"))
+		self.flags.setFlag("USERS_ONLY", config.getboolean("conf", "users_only"))
 
 		#Read paths from config-file
 		self.flags.setFlag("PATHS", [config.get("paths", "fabp"), config.get("paths", "axep"), config.get("paths", "bodp")])
