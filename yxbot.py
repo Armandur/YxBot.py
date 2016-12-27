@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import socket, random, time, Flags
+import socket, random, time, Flags, ConfigParser
 
 from handlers import PingHandler
 from handlers import KickedHandler
@@ -24,7 +24,7 @@ class YxBot:
 
 	nickListBuffer = ""
 
-	def __init__(self, flags):
+	def __init__(self):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.running = True
 
@@ -33,11 +33,8 @@ class YxBot:
 		self.flags.setFlag("RAW_ENABLED", False)
 		self.flags.setFlag("IN_CHANNEL", False)
 
-		# Update flags based on user flags
-		self.flags._flags.update(flags._flags)
-
-		self._init_handlers()
 		self._load()
+		self._init_handlers()
 
 	def _init_handlers(self):
 		self.handlers = [
@@ -51,10 +48,29 @@ class YxBot:
 		]
 
 	def _load(self):
+
+		config = ConfigParser.ConfigParser()
+		config.read("config.cfg")
+
+		print "-- Reading configuration file config.cfg --\n"
+
+		#Read connection settings from config-file
+		self.flags.setFlag("CONNECTION", (config.get("conn", "server"), config.get("conn", "port")))
+		self.flags.setFlag("CHANNEL", config.get("conn", "channel"))
+		self.flags.setFlag("NICK", config.get("conn", "nick"))
+
+		#Read configuration settings from config-file
+		self.flags.setFlag("ADMIN", config.get("conf", "admin"))
+		self.flags.setFlag("USERS_ONLY", config.get("conf", "users_only"))
+
+		#Read paths from config-file
+		self.flags.setFlag("PATHS", [config.get("paths", "fabp"), config.get("paths", "axep"), config.get("paths", "bodp")])
+
 		paths = self.flags.getFlag("PATHS")
 
 		print "-- Loading configuration from "
 		print paths
+		print "\n"
 
 		sets = [set(), set(), set()]
 
