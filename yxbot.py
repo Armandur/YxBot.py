@@ -58,6 +58,8 @@ class YxBot:
 		self.flags.setFlag("CONNECTION", (config.get("conn", "server"), config.getint("conn", "port")))
 		self.flags.setFlag("CHANNEL", config.get("conn", "channel"))
 		self.flags.setFlag("NICK", config.get("conn", "nick"))
+		self.flags.setFlag("IDENTIFY", config.getboolean("conn", "identify"))
+		self.flags.setFlag("PASSWORD", config.get("conn", "password"))
 
 		#Read configuration settings from config-file
 		self.flags.setFlag("ADMIN", config.get("conf", "admin"))
@@ -117,6 +119,12 @@ class YxBot:
 					 + "NICK " + self._nick() + "\n")
 
 	def _joinChannel(self):
+		if self.flags.getFlag("IDENTIFY"):
+			print "-- IDENTIFYING --\n"
+			self.sock.send("PRIVMSG NickServ : IDENTIFY " + self.flags.getFlag("PASSWORD")) + "\n"
+
+			time.sleep(5)
+
 		if not self.flags.getFlag("IN_CHANNEL"):
 			print "-- Joining channel " + self._channel() + " --\n"
 			self.sock.send("JOIN " + self._channel() + "\n")
