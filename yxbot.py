@@ -121,7 +121,7 @@ class YxBot:
 	def _joinChannel(self):
 		if self.flags.getFlag("IDENTIFY"):
 			print "-- IDENTIFYING --\n"
-			self.sock.send("PRIVMSG NickServ : IDENTIFY " + self.flags.getFlag("PASSWORD")) + "\n"
+			self.sock.send("PRIVMSG NickServ : IDENTIFY " + self.flags.getFlag("PASSWORD") + "\n")
 
 			time.sleep(5)
 
